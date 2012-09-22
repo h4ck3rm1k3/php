@@ -109,6 +109,7 @@ export DEB_BUILD_HARDENING DEB_BUILD_HARDENING_PIE
 
 COMMON_CONFIG=--build=$(DEB_BUILD_GNU_TYPE) \
 		--host=$(DEB_HOST_GNU_TYPE) \
+		--enable-embed \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--mandir=/usr/share/man \
@@ -284,7 +285,6 @@ configure-apache2-stamp: prepared-stamp
 	-mkdir apache2-build
 	cd apache2-build && \
         CFLAGS="$(CFLAGS)" PROG_SENDMAIL="$(PROG_SENDMAIL)" ../configure \
-		--enable-embed \
 		--prefix=/usr --with-apxs2=/usr/bin/apxs2 \
 		--with-config-file-path=/etc/php5/apache2 \
 		--with-config-file-scan-dir=/etc/php5/apache2/conf.d \
