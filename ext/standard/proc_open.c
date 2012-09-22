@@ -24,6 +24,10 @@
 # define __EXTENSIONS__	1	/* Solaris: uint */
 #endif
 
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 #include "php.h"
 #include <stdio.h>
 #include <ctype.h>
@@ -61,7 +65,7 @@
  * */
 #ifdef PHP_CAN_SUPPORT_PROC_OPEN
 
-#if 0 && HAVE_PTSNAME && HAVE_GRANTPT && HAVE_UNLOCKPT && HAVE_SYS_IOCTL_H && HAVE_TERMIOS_H
+#if HAVE_PTSNAME && HAVE_GRANTPT && HAVE_UNLOCKPT && HAVE_SYS_IOCTL_H && HAVE_TERMIOS_H
 # include <sys/ioctl.h>
 # include <termios.h>
 # define PHP_CAN_DO_PTS	1

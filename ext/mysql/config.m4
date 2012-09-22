@@ -2,16 +2,6 @@ dnl
 dnl $Id$
 dnl
 
-AC_DEFUN([MYSQL_LIB_CHK], [
-  str="$MYSQL_DIR/$1/lib$MYSQL_LIBNAME.*"
-  for j in `echo $str`; do
-    if test -r $j; then
-      MYSQL_LIB_DIR=$MYSQL_DIR/$1
-      break 2
-    fi
-  done
-])
-
 AC_DEFUN([PHP_MYSQL_SOCKET_SEARCH], [
   for i in  \
     /var/run/mysqld/mysqld.sock \
@@ -76,7 +66,7 @@ elif test "$PHP_MYSQL" != "no"; then
 Note that the MySQL client library is not bundled anymore!])
   fi
 
-  if test "$enable_maintainer_zts" = "yes"; then
+  if true || test "$enable_maintainer_zts" = "yes"; then
     MYSQL_LIBNAME=mysqlclient_r
   else
     MYSQL_LIBNAME=mysqlclient
@@ -93,7 +83,7 @@ Note that the MySQL client library is not bundled anymore!])
   fi
 
   for i in $PHP_LIBDIR $PHP_LIBDIR/mysql; do
-    MYSQL_LIB_CHK($i)
+    test -f "$MYSQL_DIR/$i/lib$MYSQL_LIBNAME.$SHLIB_SUFFIX_NAME" || test -f "$MYSQL_DIR/$i/$DEB_HOST_MULTIARCH/lib$MYSQL_LIBNAME.$SHLIB_SUFFIX_NAME" || test -r "$MYSQL_DIR/$i/lib$MYSQL_LIBNAME.a" && MYSQL_LIB_DIR=$MYSQL_DIR/$i
   done
 
   if test -z "$MYSQL_LIB_DIR"; then

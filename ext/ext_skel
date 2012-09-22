@@ -70,7 +70,7 @@ if test -d "$extname" ; then
 fi
 
 if test -z "$skel_dir"; then
-  skel_dir="skeleton"
+  skel_dir="/usr/lib/php5/skeleton"
 fi
 
 ## convert skel_dir to full path

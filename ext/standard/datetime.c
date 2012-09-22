@@ -20,6 +20,9 @@
 
 /* $Id$ */
 
+#define _XOPEN_SOURCE	/* needed to get strptime() declared */
+#define _BSD_SOURCE		/* needed to get ulong declared */
+
 #include "php.h"
 #include "zend_operators.h"
 #include "datetime.h"

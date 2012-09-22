@@ -126,9 +126,9 @@ DBA_OPEN_FUNC(db4)
 	    dbp->set_errcall(dbp, php_dba_db4_errcall_fcn);
 	    if (
 #if (DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1))
-			(err=dbp->open(dbp, 0, info->path, NULL, type, gmode, filemode)) == 0) {
+			(err=(dbp->open)(dbp, 0, info->path, NULL, type, gmode, filemode)) == 0) {
 #else
-			(err=dbp->open(dbp, info->path, NULL, type, gmode, filemode)) == 0) {
+			(err=(dbp->open)(dbp, info->path, NULL, type, gmode, filemode)) == 0) {
 #endif
 			dba_db4_data *data;
 

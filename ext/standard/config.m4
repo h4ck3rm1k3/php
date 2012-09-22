@@ -58,6 +58,12 @@ if test "$ac_cv_func_crypt" = "no"; then
     AC_DEFINE(HAVE_CRYPT, 1, [ ])
   ])
 fi
+
+AC_CHECK_FUNCS(crypt_r, [ php_crypt_r="1" ], [ php_crypt_r="0" ])
+if test "x$php_crypt_r" = "x1"; then
+  PHP_CRYPT_R_STYLE
+  AC_DEFINE(HAVE_CRYPT_R, 1, [ ])
+fi
   
 AC_CACHE_CHECK(for standard DES crypt, ac_cv_crypt_des,[
   AC_TRY_RUN([
@@ -182,12 +188,12 @@ AC_TRY_RUN([
 
 main() {
 #if HAVE_CRYPT
-    char salt[30], answer[80];
-    
-    salt[0]='$'; salt[1]='6'; salt[2]='$'; salt[3]='$'; salt[4]='b'; salt[5]='a'; salt[6]='r'; salt[7]='\0';
+    char salt[21], answer[21+86];
+
+    strcpy(salt,"\$6\$rasmuslerdorf\$");
     strcpy(answer, salt);
-    strcpy(&answer[29],"$6$$QMXjqd7rHQZPQ1yHsXkQqC1FBzDiVfTHXL.LaeDAeVV.IzMaV9VU4MQ8kPuZa2SOP1A0RPm772EaFYjpEJtdu.");
-    exit (strcmp((char *)crypt("foo",salt),answer));
+    strcat(answer, "EeHCRjm0bljalWuALHSTs1NB9ipEiLEXLhYeXdOpx22gmlmVejnVXFhd84cEKbYxCo.XuUTrW.RLraeEnsvWs/");
+    exit (strcmp((char *)crypt("rasmuslerdorf",salt),answer));
 #else
 	exit(0);
 #endif
@@ -211,12 +217,13 @@ AC_TRY_RUN([
 
 main() {
 #if HAVE_CRYPT
-    char salt[30], answer[80];
-    salt[0]='$'; salt[1]='5'; salt[2]='$'; salt[3]='$'; salt[4]='s'; salt[5]='a'; salt[6]='l'; salt[7]='t';  salt[8]='s'; salt[9]='t'; salt[10]='r'; salt[11]='i'; salt[12]='n'; salt[13]='g'; salt[14]='\0';    
-    strcat(salt,"");
+    char salt[21], answer[21+43];
+
+    strcpy(salt,"\$5\$rasmuslerdorf\$");
     strcpy(answer, salt);
-    strcpy(&answer[29], "$5$saltstring$5B8vYYiY.CVt1RlTTf8KbXBH3hsxY/GNooZaBBGWEc5");
-    exit (strcmp((char *)crypt("foo",salt),answer));
+    strcat(answer, "cFAm2puLCujQ9t.0CxiFIIvFi4JyQx5UncCt/xRIX23");
+    exit (strcmp((char *)crypt("rasmuslerdorf",salt),answer));
+
 #else
 	exit(0);
 #endif
@@ -228,11 +235,68 @@ main() {
   ac_cv_crypt_SHA256=no
 ])])
 
+dnl
+dnl Define PHP_*_CRYPT according to system
+dnl
+
+if test "$ac_cv_crypt_des" = "yes"; then
+  ac_result=1
+  ac_crypt_des=1
+else
+  ac_result=0
+  ac_crypt_des=0
+fi
+AC_DEFINE_UNQUOTED(PHP_STD_DES_CRYPT, $ac_result, [Whether the system supports standard DES salt])
+
+if test "$ac_cv_crypt_md5" = "yes"; then
+  ac_result=1
+  ac_crypt_md5=1
+else
+  ac_result=0
+  ac_crypt_md5=0
+fi
+AC_DEFINE_UNQUOTED(PHP_MD5_CRYPT, $ac_result, [Whether the system supports MD5 salt])
+
+if test "$ac_cv_crypt_blowfish" = "yes"; then
+  ac_result=1
+  ac_crypt_blowfish=1
+else
+  ac_result=0
+  ac_crypt_blowfish=0
+fi
+AC_DEFINE_UNQUOTED(PHP_BLOWFISH_CRYPT, $ac_result, [Whether the system supports BlowFish salt])
+
+if test "$ac_cv_crypt_ext_des" = "yes"; then
+  ac_result=1
+  ac_crypt_edes=1
+else
+  ac_result=0
+  ac_crypt_edes=0
+fi
+AC_DEFINE_UNQUOTED(PHP_EXT_DES_CRYPT, $ac_result, [Whether the system supports extended DES salt])
+
+if test "$ac_cv_crypt_SHA512" = "yes"; then
+  ac_result=1
+  ac_crypt_sha512=1
+else
+  ac_result=0
+  ac_crypt_sha512=0
+fi
+AC_DEFINE_UNQUOTED(PHP_SHA512_CRYPT, $ac_result, [Whether the system supports SHA512 salt])
+
+if test "$ac_cv_crypt_SHA256" = "yes"; then
+  ac_result=1
+  ac_crypt_sha256=1
+else
+  ac_result=0
+  ac_crypt_sha256=0
+fi
+AC_DEFINE_UNQUOTED(PHP_SHA256_CRYPT, $ac_result, [Whether the system supports SHA256 salt])
 
 dnl
 dnl If one of them is missing, use our own implementation, portable code is then possible
 dnl
-if test "$ac_cv_crypt_blowfish" = "no" || test "$ac_cv_crypt_des" = "no" || test "$ac_cv_crypt_ext_des" = "no" || test "x$php_crypt_r" = "x0"; then
+if test "$ac_cv_crypt_SHA512" = no || test "$ac_cv_crypt_SHA256" = "no" || test "$ac_cv_crypt_blowfish" = "no" || test "$ac_cv_crypt_des" = "no" || test "$ac_cv_crypt_md5" = "no" || test "$ac_cv_crypt_ext_des" = "no" || test "x$php_crypt_r" = "x0"; then
 
   dnl
   dnl Check for __alignof__ support in the compiler
@@ -266,73 +330,14 @@ if test "$ac_cv_crypt_blowfish" = "no" || test "$ac_cv_crypt_des" = "no" || test
     AC_DEFINE([HAVE_ATTRIBUTE_ALIGNED], 1, [whether the compiler supports __attribute__ ((__aligned__))])
   fi
     
-
-  AC_DEFINE_UNQUOTED(PHP_USE_PHP_CRYPT_R, 1, [Whether PHP has to use its own crypt_r for blowfish, des, ext des and md5])
-  AC_DEFINE_UNQUOTED(PHP_STD_DES_CRYPT, 1, [Whether the system supports standard DES salt])
-  AC_DEFINE_UNQUOTED(PHP_BLOWFISH_CRYPT, 1, [Whether the system supports BlowFish salt])
-  AC_DEFINE_UNQUOTED(PHP_EXT_DES_CRYPT, 1, [Whether the system supports extended DES salt])
-  AC_DEFINE_UNQUOTED(PHP_MD5_CRYPT, 1, [Whether the system supports MD5 salt])
-  AC_DEFINE_UNQUOTED(PHP_SHA512_CRYPT, 1, [Whether the system supports SHA512 salt])
-  AC_DEFINE_UNQUOTED(PHP_SHA256_CRYPT, 1, [Whether the system supports SHA256 salt])
+  ac_result=1
 
   PHP_ADD_SOURCES(PHP_EXT_DIR(standard), crypt_freesec.c crypt_blowfish.c crypt_sha512.c crypt_sha256.c php_crypt_r.c)
 else
-  if test "$ac_cv_crypt_des" = "yes"; then
-    ac_result=1
-    ac_crypt_des=1
-  else
-    ac_result=0
-    ac_crypt_des=0
-  fi
-  AC_DEFINE_UNQUOTED(PHP_STD_DES_CRYPT, $ac_result, [Whether the system supports standard DES salt])
-
-  if test "$ac_cv_crypt_blowfish" = "yes"; then
-    ac_result=1
-    ac_crypt_blowfish=1
-  else
-    ac_result=0
-    ac_crypt_blowfish=0
-  fi
-  AC_DEFINE_UNQUOTED(PHP_BLOWFISH_CRYPT, $ac_result, [Whether the system supports BlowFish salt])
-
-  if test "$ac_cv_crypt_ext_des" = "yes"; then
-    ac_result=1
-    ac_crypt_edes=1
-  else
-    ac_result=0
-    ac_crypt_edes=0
-  fi
-  AC_DEFINE_UNQUOTED(PHP_EXT_DES_CRYPT, $ac_result, [Whether the system supports extended DES salt])
-
-  if test "$ac_cv_crypt_md5" = "yes"; then
-    ac_result=1
-    ac_crypt_md5=1
-  else
-    ac_result=0
-    ac_crypt_md5=0
-  fi
-  AC_DEFINE_UNQUOTED(PHP_MD5_CRYPT, $ac_result, [Whether the system supports MD5 salt])  
-  
-  if test "$ac_cv_crypt_sha512" = "yes"; then
-    ac_result=1
-    ac_crypt_sha512=1
-  else
-    ac_result=0
-    ac_crypt_sha512=0
-  fi
-  AC_DEFINE_UNQUOTED(PHP_SHA512_CRYPT, $ac_result, [Whether the system supports SHA512 salt])
-
-  if test "$ac_cv_crypt_sha256" = "yes"; then
-    ac_result=1
-    ac_crypt_sha256=1
-  else
-    ac_result=0
-    ac_crypt_sha256=0
-  fi
-  AC_DEFINE_UNQUOTED(PHP_SHA256_CRYPT, $ac_result, [Whether the system supports SHA256 salt])
-
-  AC_DEFINE_UNQUOTED(PHP_USE_PHP_CRYPT_R, 0, [Whether PHP has to use its own crypt_r for blowfish, des and ext des])
+  ac_result=0
 fi
+
+AC_DEFINE_UNQUOTED(PHP_USE_PHP_CRYPT_R, $ac_result, [Whether PHP has to use its own crypt_r for blowfish, des and ext des])
 
 dnl
 dnl Check for available functions

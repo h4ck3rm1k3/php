@@ -67,6 +67,8 @@
 #define yydebug zenddebug
 #define yynerrs zendnerrs
 
+#include <string.h>
+
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE

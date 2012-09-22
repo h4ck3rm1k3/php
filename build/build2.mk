@@ -46,7 +46,8 @@ $(TOUCH_FILES):
 
 aclocal.m4: configure.in acinclude.m4
 	@echo rebuilding $@
-	cat acinclude.m4 ./build/libtool.m4 > $@
+	libtoolize --copy --install --automake --force
+	aclocal
 
 configure: aclocal.m4 configure.in $(config_m4_files)
 	@echo rebuilding $@

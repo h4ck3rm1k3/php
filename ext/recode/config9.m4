@@ -13,6 +13,6 @@ if test "$PHP_RECODE" != "no"; then
   fi
 
   if test -n "$recode_conflict"; then
-    AC_MSG_ERROR([recode extension can not be configured together with:$recode_conflict])
+    AC_MSG_WARN([recode extension can not be used together with:$recode_conflict])
   fi
 fi

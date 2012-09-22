@@ -113,6 +113,10 @@ if test "$PHP_QDBM" != "no"; then
       THIS_PREFIX=$i
       THIS_INCLUDE=$i/include/depot.h
       break
+    elif test -f "$i/include/qdbm/depot.h"; then
+      THIS_PREFIX=$i
+      THIS_INCLUDE=$i/include/qdbm/depot.h
+      break
     fi
   done
 
@@ -235,7 +239,7 @@ AC_DEFUN([PHP_DBA_DB_CHECK],[
     AC_MSG_ERROR([DBA: Could not find necessary header file(s).])
   fi
   for LIB in $2; do
-    if test -f $THIS_PREFIX/$PHP_LIBDIR/lib$LIB.a || test -f $THIS_PREFIX/$PHP_LIBDIR/lib$LIB.$SHLIB_SUFFIX_NAME; then
+    if test -f $THIS_PREFIX/$PHP_LIBDIR/lib$LIB.a || test -f $THIS_PREFIX/$PHP_LIBDIR/$DEB_HOST_MULTIARCH/lib$LIB.$SHLIB_SUFFIX_NAME || test -f $THIS_PREFIX/$PHP_LIBDIR/lib$LIB.$SHLIB_SUFFIX_NAME; then
       lib_found="";
       PHP_TEMP_LDFLAGS(-L$THIS_PREFIX/$PHP_LIBDIR, -l$LIB,[
         AC_TRY_LINK([
@@ -362,7 +366,7 @@ if test "$PHP_DB4" != "no"; then
       break
     fi
   done
-  PHP_DBA_DB_CHECK(4, db-5.1 db-5.0 db-4.8 db-4.7 db-4.6 db-4.5 db-4.4 db-4.3 db-4.2 db-4.1 db-4.0 db-4 db4 db, [(void)db_create((DB**)0, (DB_ENV*)0, 0)])
+  PHP_DBA_DB_CHECK(4, db, [(void)db_create((DB**)0, (DB_ENV*)0, 0)])
 fi
 PHP_DBA_STD_RESULT(db4,Berkeley DB4)
 

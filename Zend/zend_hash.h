@@ -306,9 +306,11 @@ END_EXTERN_C()
 
 #define ZEND_HANDLE_NUMERIC_EX(key, length, idx, func) do {					\
 	register const char *tmp = key;											\
+	int negative = 0;											\
 																			\
 	if (*tmp == '-') {														\
 		tmp++;																\
+		negative = 1;																\
 	}																		\
 	if (*tmp >= '0' && *tmp <= '9') { /* possibly a numeric index */		\
 		const char *end = key + length - 1;									\
@@ -321,19 +323,19 @@ END_EXTERN_C()
 		     *tmp > '2')) { /* overflow */									\
 			break;															\
 		}																	\
-		idx = (*tmp - '0');													\
+		idx = ((negative)?-1:1) * (*tmp - '0');								\
 		while (++tmp != end && *tmp >= '0' && *tmp <= '9') {				\
-			idx = (idx * 10) + (*tmp - '0');								\
-		}																	\
-		if (tmp == end) {													\
-			if (*key == '-') {												\
-				if (idx-1 > LONG_MAX) { /* overflow */						\
-					break;													\
-				}															\
-				idx = 0 - idx;               									\
-			} else if (idx > LONG_MAX) { /* overflow */						\
+			int digit = (*tmp - '0');										\
+			if ( (!negative) && idx <= (LONG_MAX-digit)/10 ) {				\
+				idx = (idx * 10) + digit;									\
+			} else if ( (negative) && idx >= (LONG_MIN+digit)/10 ) {		\
+				idx = (idx * 10) - digit;									\
+			} else {														\
+				--tmp; /* overflow or underflow, make sure tmp != end */	\
 				break;														\
 			}																\
+		}																	\
+		if (tmp == end) {													\
 			func;															\
 		}																	\
 	}																		\

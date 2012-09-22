@@ -38,7 +38,7 @@ if test "$PHP_MSSQL" != "no"; then
     fi
   fi  
 
-  if test ! -r "$FREETDS_INSTALLATION_DIR/$PHP_LIBDIR/libsybdb.a" && test ! -r "$FREETDS_INSTALLATION_DIR/$PHP_LIBDIR/libsybdb.so"; then
+  if test ! -r "$FREETDS_INSTALLATION_DIR/$PHP_LIBDIR/libsybdb.a" && test ! -r "$FREETDS_INSTALLATION_DIR/$PHP_LIBDIR/$DEB_HOST_MULTIARCH/libsybdb.so" && test ! -r "$FREETDS_INSTALLATION_DIR/$PHP_LIBDIR/libsybdb.so"; then
      AC_MSG_ERROR(Could not find $FREETDS_INSTALLATION_DIR/$PHP_LIBDIR/libsybdb.[a|so])
   fi
 

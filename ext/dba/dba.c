@@ -907,7 +907,7 @@ static void php_dba_open(INTERNAL_FUNCTION_PARAMETERS, int persistent)
 		}
 	}
 
-	if (error || hptr->open(info, &error TSRMLS_CC) != SUCCESS) {
+	if (error || (hptr->open)(info, &error TSRMLS_CC) != SUCCESS) {
 		dba_close(info TSRMLS_CC);
 		php_error_docref2(NULL TSRMLS_CC, Z_STRVAL_PP(args[0]), Z_STRVAL_PP(args[1]), E_WARNING, "Driver initialization failed for handler: %s%s%s", hptr->name, error?": ":"", error?error:"");
 		FREENOW;

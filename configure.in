@@ -120,7 +120,7 @@ int zend_sprintf(char *buffer, const char *format, ...);
 PHP_MAJOR_VERSION=5
 PHP_MINOR_VERSION=4
 PHP_RELEASE_VERSION=6
-PHP_EXTRA_VERSION=""
+PHP_EXTRA_VERSION="-1"
 PHP_VERSION="$PHP_MAJOR_VERSION.$PHP_MINOR_VERSION.$PHP_RELEASE_VERSION$PHP_EXTRA_VERSION"
 PHP_VERSION_ID=`expr [$]PHP_MAJOR_VERSION \* 10000 + [$]PHP_MINOR_VERSION \* 100 + [$]PHP_RELEASE_VERSION`
 
@@ -135,6 +135,8 @@ AC_DEFUN([PHP_EXT_BUILDDIR],[ext/$1])dnl
 AC_DEFUN([PHP_EXT_DIR],[ext/$1])dnl
 AC_DEFUN([PHP_EXT_SRCDIR],[$abs_srcdir/ext/$1])dnl
 AC_DEFUN([PHP_ALWAYS_SHARED],[])dnl
+
+AC_DEFINE([_GNU_SOURCE], 1, [Define to enable GNU C Library extensions])
 
 dnl Setting up the PHP version based on the information above.
 dnl -------------------------------------------------------------------------
@@ -692,50 +694,50 @@ PHP_CHECK_FUNC_LIB(nanosleep, rt)
 
 dnl Check for getaddrinfo, should be a better way, but...
 dnl Also check for working getaddrinfo
-AC_CACHE_CHECK([for getaddrinfo], ac_cv_func_getaddrinfo,
-[AC_TRY_LINK([#include <netdb.h>],
-                [struct addrinfo *g,h;g=&h;getaddrinfo("","",g,&g);], 
-  AC_TRY_RUN([
-#include <netdb.h>
-#include <sys/types.h>
-#ifndef AF_INET
-# include <sys/socket.h>
-#endif
-int main(void) {
-  struct addrinfo *ai, *pai, hints;
-
-  memset(&hints, 0, sizeof(hints));
-  hints.ai_flags = AI_NUMERICHOST;
-
-  if (getaddrinfo("127.0.0.1", 0, &hints, &ai) < 0) {
-    exit(1);
-  }
-
-  if (ai == 0) {
-    exit(1);
-  }
-
-  pai = ai;
-  
-  while (pai) {
-    if (pai->ai_family != AF_INET) {
-      /* 127.0.0.1/NUMERICHOST should only resolve ONE way */
-      exit(1);
-    }
-    if (pai->ai_addr->sa_family != AF_INET) {
-      /* 127.0.0.1/NUMERICHOST should only resolve ONE way */
-      exit(1);
-    }
-    pai = pai->ai_next;
-  }
-  freeaddrinfo(ai);
-  exit(0);
-}
-  ],ac_cv_func_getaddrinfo=yes, ac_cv_func_getaddrinfo=no, ac_cv_func_getaddrinfo=no),
-ac_cv_func_getaddrinfo=no)])
-if test "$ac_cv_func_getaddrinfo" = yes; then
+dnl AC_CACHE_CHECK([for getaddrinfo], ac_cv_func_getaddrinfo,
+dnl [AC_TRY_LINK([#include <netdb.h>],
+dnl                 [struct addrinfo *g,h;g=&h;getaddrinfo("","",g,&g);], 
+dnl   AC_TRY_RUN([
+dnl #include <netdb.h>
+dnl #include <sys/types.h>
+dnl #ifndef AF_INET
+dnl # include <sys/socket.h>
+dnl #endif
+dnl int main(void) {
+dnl   struct addrinfo *ai, *pai, hints;
+dnl 
+dnl   memset(&hints, 0, sizeof(hints));
+dnl   hints.ai_flags = AI_NUMERICHOST;
+dnl 
+dnl   if (getaddrinfo("127.0.0.1", 0, &hints, &ai) < 0) {
+dnl     exit(1);
+dnl   }
+dnl 
+dnl   if (ai == 0) {
+dnl     exit(1);
+dnl   }
+dnl 
+dnl   pai = ai;
+dnl   
+dnl   while (pai) {
+dnl     if (pai->ai_family != AF_INET) {
+dnl       /* 127.0.0.1/NUMERICHOST should only resolve ONE way */
+dnl       exit(1);
+dnl     }
+dnl     if (pai->ai_addr->sa_family != AF_INET) {
+dnl       /* 127.0.0.1/NUMERICHOST should only resolve ONE way */
+dnl       exit(1);
+dnl     }
+dnl     pai = pai->ai_next;
+dnl   }
+dnl   freeaddrinfo(ai);
+dnl   exit(0);
+dnl }
+dnl   ],ac_cv_func_getaddrinfo=yes, ac_cv_func_getaddrinfo=no, ac_cv_func_getaddrinfo=no),
+dnl ac_cv_func_getaddrinfo=no)])
+dnl if test "$ac_cv_func_getaddrinfo" = yes; then
   AC_DEFINE(HAVE_GETADDRINFO,1,[Define if you have the getaddrinfo function])
-fi
+dnl fi
 
 dnl Check for the __sync_fetch_and_add builtin
 AC_CACHE_CHECK([for __sync_fetch_and_add], ac_cv_func_sync_fetch_and_add,
@@ -1068,7 +1070,7 @@ if test "$PHP_CLI" = "no"; then
 fi
 
 PHP_ARG_WITH(pear, [whether to install PEAR],
-[  --with-pear=DIR         Install PEAR in DIR @<:@PREFIX/lib/php@:>@
+[  --with-pear=DIR         Install PEAR in DIR @<:@PREFIX/lib/php5@:>@
   --without-pear          Do not install PEAR], DEFAULT, yes)
 
 if test "$PHP_PEAR" != "no"; then
@@ -1098,7 +1100,7 @@ dnl
   if test "$PHP_PEAR" = "DEFAULT" || test "$PHP_PEAR" = "yes"; then
     case $PHP_LAYOUT in
       GNU) PEAR_INSTALLDIR=$datadir/pear;;
-      *)   PEAR_INSTALLDIR=$libdir/php;;
+      *)   PEAR_INSTALLDIR=$libdir/php5;;
     esac
   fi
 
@@ -1153,12 +1155,12 @@ test "$program_suffix" = "NONE" && program_suffix=
 
 case $libdir in
   '${exec_prefix}/lib')
-    libdir=$libdir/php
+    libdir=$libdir/php5
     ;;
 esac
 case $datadir in
   '${prefix}/share')
-    datadir=$datadir/php
+    datadir=$datadir/php5
     ;;
 esac
 
@@ -1177,8 +1179,13 @@ dnl Build extension directory path
 
 ZEND_MODULE_API_NO=`$EGREP '#define ZEND_MODULE_API_NO ' $srcdir/Zend/zend_modules.h|$SED 's/#define ZEND_MODULE_API_NO //'`
 
+DEBIAN_PHP_API=$ZEND_MODULE_API_NO
+if echo "$CPPFLAGS $CFLAGS" | grep -q -- -D_FILE_OFFSET_BITS=64; then
+  DEBIAN_PHP_API="${DEBIAN_PHP_API}+lfs"
+fi
+
 if test -z "$EXTENSION_DIR"; then
-  extbasedir=$ZEND_MODULE_API_NO
+  extbasedir=$DEBIAN_PHP_API
   if test "$oldstyleextdir" = "yes"; then
     if test "$PHP_DEBUG" = "1"; then
       part1=debug
@@ -1225,7 +1232,7 @@ EXPANDED_SYSCONFDIR=`eval echo $sysconfdir`
 EXPANDED_DATADIR=$datadir
 EXPANDED_PHP_CONFIG_FILE_PATH=`eval echo "$PHP_CONFIG_FILE_PATH"`
 EXPANDED_PHP_CONFIG_FILE_SCAN_DIR=`eval echo "$PHP_CONFIG_FILE_SCAN_DIR"`
-INCLUDE_PATH=.:$EXPANDED_PEAR_INSTALLDIR
+INCLUDE_PATH=.:$EXPANDED_PEAR_INSTALLDIR:/usr/share/pear
 
 exec_prefix=$old_exec_prefix
 libdir=$old_libdir
@@ -1321,6 +1328,7 @@ PHP_SUBST(CXX)
 PHP_SUBST(CXXFLAGS)
 PHP_SUBST(CXXFLAGS_CLEAN)
 PHP_SUBST_OLD(DEBUG_CFLAGS)
+PHP_SUBST_OLD(DEBIAN_PHP_API)
 PHP_SUBST_OLD(EXTENSION_DIR)
 PHP_SUBST_OLD(EXTRA_LDFLAGS)
 PHP_SUBST_OLD(EXTRA_LDFLAGS_PROGRAM)
@@ -1399,9 +1407,6 @@ AC_PROVIDE_IFELSE([PHP_REQUIRE_CXX], [], [
 ])
 AC_PROG_LIBTOOL
 
-if test "$enable_debug" != "yes"; then
-  PHP_SET_LIBTOOL_VARIABLE([--silent])
-fi
 
 dnl libtool 1.4.3 needs this.
 PHP_SET_LIBTOOL_VARIABLE([--preserve-dup-deps])

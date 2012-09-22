@@ -147,6 +147,11 @@ AC_DEFUN([AC_FPM_TRACE],
         pid_t child;
         int status;
 
+        /* broken ptrace on Hurd, avoid hanging */
+        #ifdef __GNU__
+        return 10;
+        #endif
+
         if ( (child = fork()) ) { /* parent */
           int ret = 0;
 

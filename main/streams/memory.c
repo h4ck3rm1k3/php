@@ -18,7 +18,6 @@
 
 /* $Id$ */
 
-#define _GNU_SOURCE
 #include "php.h"
 
 PHPAPI int php_url_decode(char *str, int len);

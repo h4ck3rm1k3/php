@@ -631,7 +631,13 @@ static int php_stdiop_set_option(php_stream *stream, int option, int value, void
 
 				switch (value) {
 					case PHP_STREAM_MMAP_SUPPORTED:
-						return fd == -1 ? PHP_STREAM_OPTION_RETURN_ERR : PHP_STREAM_OPTION_RETURN_OK;
+						if (fd == -1)
+							return PHP_STREAM_OPTION_RETURN_ERR;
+						/* Don't mmap large files */
+						do_fstat(data, 1);
+						if (data->sb.st_size > 4 * 1024 * 1024)
+							return PHP_STREAM_OPTION_RETURN_ERR;
+						return PHP_STREAM_OPTION_RETURN_OK;
 
 					case PHP_STREAM_MMAP_MAP_RANGE:
 						do_fstat(data, 1);

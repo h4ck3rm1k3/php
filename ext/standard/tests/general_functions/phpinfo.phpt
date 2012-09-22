@@ -1,5 +1,7 @@
 --TEST--
 phpinfo()
+--SKIPIF--
+<?php die("SKIP phpinfo - test suite's handling of "%s" is incompatible with this test"); ?>
 --FILE--
 <?php
 var_dump(phpinfo());
@@ -20,7 +22,6 @@ PHP Version => %s
 
 System => %s
 Build Date => %s%a
-Configure Command => %s
 Server API => Command Line Interface
 Virtual Directory Support => %s
 Configuration File (php.ini) Path => %s

@@ -892,6 +892,7 @@ static int php_sock_array_to_fd_set(zval *sock_array, fd_set *fds, PHP_SOCKET *m
 
 		php_sock = (php_socket*) zend_fetch_resource(element TSRMLS_CC, -1, le_socket_name, NULL, 1, le_socket);
 		if (!php_sock) continue; /* If element is not a resource, skip it */
+		if (php_sock->bsd_socket > FD_SETSIZE) continue; /* must ignore it */
 
 		PHP_SAFE_FD_SET(php_sock->bsd_socket, fds);
 		if (php_sock->bsd_socket > *max_fd) {

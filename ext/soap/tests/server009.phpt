@@ -10,6 +10,7 @@ SOAP Server 9: setclass and setpersistence(SOAP_PERSISTENCE_SESSION)
 --INI--
 session.auto_start=1
 session.save_handler=files
+session.save_path=temp_session_store
 --FILE--
 <?php
 class foo {

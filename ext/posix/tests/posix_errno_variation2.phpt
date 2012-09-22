@@ -21,7 +21,9 @@ do {
   $result = shell_exec("ps -p " . $pid);
 } while (strstr($pid, $result)); 
 
-posix_kill($pid, SIGKILL);
+/* don't depend on SIGKILL being defined (pcntl might not not be loaded) */
+$SIGKILL = 9;
+posix_kill($pid, $SIGKILL);
 var_dump(posix_errno());
 
 ?>

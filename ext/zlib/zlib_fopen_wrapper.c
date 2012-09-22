@@ -19,8 +19,6 @@
 
 /* $Id$ */
 
-#define _GNU_SOURCE
-
 #include "php.h"
 #include "php_zlib.h"
 #include "fopen_wrappers.h"

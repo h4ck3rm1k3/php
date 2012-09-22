@@ -91,7 +91,7 @@ DBA_OPEN_FUNC(db3)
 
 	if ((err=db_create(&dbp, NULL, 0)) == 0) {
 	    dbp->set_errcall(dbp, php_dba_db3_errcall_fcn);
-	    if ((err=dbp->open(dbp, info->path, NULL, type, gmode, filemode)) == 0) {
+	    if ((err=(dbp->open)(dbp, info->path, NULL, type, gmode, filemode)) == 0) {
 			dba_db3_data *data;
 
 			data = pemalloc(sizeof(*data), info->flags&DBA_PERSISTENT);

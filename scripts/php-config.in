@@ -6,8 +6,8 @@ datarootdir="@datarootdir@"
 exec_prefix="@exec_prefix@"
 version="@PHP_VERSION@"
 vernum="@PHP_VERSION_ID@"
-include_dir="@includedir@/php"
-includes="-I$include_dir -I$include_dir/main -I$include_dir/TSRM -I$include_dir/Zend -I$include_dir/ext -I$include_dir/ext/date/lib"
+include_dir="@includedir@/php5"
+includes="-I$include_dir -I$include_dir/main -I$include_dir/TSRM -I$include_dir/Zend -I$include_dir/ext -I$include_dir/ext/date/lib $(getconf LFS_CFLAGS)"
 ldflags="@PHP_LDFLAGS@"
 libs="@EXTRA_LIBS@"
 extension_dir='@EXTENSION_DIR@'
@@ -19,6 +19,7 @@ php_cli_binary=NONE
 php_cgi_binary=NONE
 configure_options="@CONFIGURE_OPTIONS@"
 php_sapis="@PHP_INSTALLED_SAPIS@"
+phpapi="@DEBIAN_PHP_API@"
 
 # Set php_cli_binary and php_cgi_binary if available
 for sapi in $php_sapis; do
@@ -57,6 +58,8 @@ case "$1" in
   echo $include_dir;;
 --php-binary)
   echo $php_binary;;
+--phpapi)
+  echo $phpapi;;
 --php-sapis)
   echo $php_sapis;;
 --configure-options)
@@ -80,6 +83,7 @@ Options:
   --man-dir           [$man_dir]
   --php-binary        [$php_binary]
   --php-sapis         [$php_sapis]
+  --phpapi            [$phpapi]
   --configure-options [$configure_options]
   --version           [$version]
   --vernum            [$vernum]

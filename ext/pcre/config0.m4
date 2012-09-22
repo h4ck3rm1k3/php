@@ -21,7 +21,7 @@ PHP_ARG_WITH(pcre-regex,,
     AC_MSG_RESULT([$PCRE_INCDIR])
 
     AC_MSG_CHECKING([for PCRE library location])
-    for j in $PHP_PCRE_REGEX $PHP_PCRE_REGEX/$PHP_LIBDIR; do
+    for j in $PHP_PCRE_REGEX $PHP_PCRE_REGEX/$PHP_LIBDIR/$DEB_HOST_MULTIARCH $PHP_PCRE_REGEX/$PHP_LIBDIR; do
       test -f $j/libpcre.a || test -f $j/libpcre.$SHLIB_SUFFIX_NAME && PCRE_LIBDIR=$j
     done
     

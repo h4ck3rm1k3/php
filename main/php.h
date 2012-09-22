@@ -30,6 +30,7 @@
 #define PHP_HAVE_STREAMS
 #define YYDEBUG 0
 
+#include "php_config.h"
 #include "php_version.h"
 #include "zend.h"
 #include "zend_qsort.h"
@@ -244,6 +245,10 @@ END_EXTERN_C()
 
 /* macros */
 #define STR_PRINT(str)	((str)?(str):"")
+
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 #ifndef MAXPATHLEN
 # ifdef PATH_MAX

@@ -112,9 +112,6 @@ php_file_globals file_globals;
 #endif
 
 #if defined(HAVE_FNMATCH) && !defined(PHP_WIN32)
-# ifndef _GNU_SOURCE
-#  define _GNU_SOURCE
-# endif
 # include <fnmatch.h>
 #endif
 

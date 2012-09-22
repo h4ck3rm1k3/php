@@ -50,7 +50,7 @@ ZEND_DECLARE_MODULE_GLOBALS(pdo_mysql)
 #  define PDO_MYSQL_UNIX_ADDR PHP_MYSQL_UNIX_SOCK_ADDR
 # else
 #  if !PHP_WIN32
-#   define PDO_MYSQL_UNIX_ADDR "/tmp/mysql.sock"
+#   define PDO_MYSQL_UNIX_ADDR "/var/run/mysqld/mysqld.sock"
 #  else
 #   define PDO_MYSQL_UNIX_ADDR NULL
 #  endif
